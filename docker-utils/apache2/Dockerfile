@@ -7,7 +7,7 @@ RUN apt-get update --fix-missing \
     libclamav-dev \
     curl wget git htop supervisor vim openssh-server software-properties-common netcat
 
-COPY ../php5/linode.list /etc/apt/sources.list.d/
+COPY ../php7.1/linode.list /etc/apt/sources.list.d/
 COPY ../docker-utils/nginx/nginx.list /etc/apt/sources.list.d/
 
 # Add Nginx pubkey, update and run --fix-missing for broken repos (just in case)
@@ -19,22 +19,22 @@ RUN wget http://nginx.org/keys/nginx_signing.key \
 # Install all the PHP dependencies
 RUN apt-get install -y \
     mysql-client \
-    php5 \
-    php5-cli \
-    php5-common \
-    php5-gd \
-    php5-mcrypt \
-    php5-fpm \
-    php5-curl \
-    php5-memcached \
-    php5-xdebug \
-    php5-xhprof \
-    php5-mysql \
+    php7.1 \
+    php7.1-cli \
+    php7.1-common \
+    php7.1-gd \
+    php7.1-mcrypt \
+    php7.1-fpm \
+    php7.1-curl \
+    php7.1-memcached \
+    php7.1-xdebug \
+    php7.1-xhprof \
+    php7.1-mysql \
     php-pear \
     apache2 \
     nginx \
     libapache2-mod-fastcgi \
-    php5-dev \
+    php7.1-dev \
     rsyslog
 
 # Install php clamav
@@ -48,8 +48,8 @@ RUN version=$(php -r "echo PHP_MAJOR_VERSION.PHP_MINOR_VERSION;") \
     && tar zxpf /tmp/blackfire-probe.tar.gz -C /tmp \
     && mv /tmp/blackfire-*.so $(php -r "echo ini_get('extension_dir');")/blackfire.so
 
-COPY ../php5/blackfire.ini /etc/php5/fpm/conf.d/
-COPY ../docker-utils/php5/blackfire.ini /etc/php5/cli/conf.d/
+COPY ../php7.1/blackfire.ini /etc/php7.1/fpm/conf.d/
+COPY ../docker-utils/php7.1/blackfire.ini /etc/php7.1/cli/conf.d/
 
 # Install NodeJS and npm
 RUN curl -sL https://deb.nodesource.com/setup_4.x | bash -
@@ -94,9 +94,9 @@ RUN apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
 # install custom config files
-COPY ../php5/php.ini /etc/php5/fpm/php.ini
-COPY ../php5/20-xdebug.ini /etc/php5/fpm/conf.d/20-xdebug.ini
-COPY ../php5cli/php.ini /etc/php5/cli/php.ini
+COPY ../php7.1/php.ini /etc/php7.1/fpm/php.ini
+COPY ../php7.1/20-xdebug.ini /etc/php7.1/fpm/conf.d/20-xdebug.ini
+COPY ../php7.1cli/php.ini /etc/php7.1/cli/php.ini
 COPY ../apache2/ports.conf /etc/apache2/
 COPY ../apache2/mods-enabled/*.conf /etc/apache2/mods-enabled/
 COPY ../supervisord/*.conf /etc/supervisor/conf.d/

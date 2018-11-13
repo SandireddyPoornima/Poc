@@ -7,32 +7,51 @@ RUN apt-get update -y  && \
     libclamav-dev \
     curl wget git htop supervisor vim openssh-server software-properties-common netcat
 
-COPY ./docker-utils/php5/linode.list /etc/apt/sources.list.d/
+COPY ./docker-utils/php7.1/linode.list /etc/apt/sources.list.d/
 
 # Install all the PHP dependencies
-RUN apt-get update -y && \
-    apt-get install -y \
+RUN apt-get install --no-install-recommends -y build-essential apt-transport-https lsb-release ca-certificates -y
+RUN wget -O /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg
+RUN echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/php.list
+# Install all the PHP dependencies
+RUN apt-get update && apt-get install --yes --force-yes \
     mysql-client \
-    php5 \
-    php5-cli \
-    php5-common \
-    php5-gd \
-    php5-mcrypt \
-    php5-fpm \
-    php5-curl \
-    php5-memcached \
-    php5-xdebug \
-    php5-xhprof \
-    php5-mysql \
+    php7.1-dev \
+    php7.1 \
+    php7.1-cli \
+    php7.1-fpm \
+    php7.1-mcrypt \
+    php7.1-common \
+    php7.1-gd \
+    php7.1-curl \
+    php7.1-memcached \
+    php7.1-xdebug \
+    php7.1-mysql \
     php-pear \
+    rsyslog \
+    php7.1-mbstring \
+    php7.1-apcu \
+    php7.1-ctype \
+    php7.1-dom \
+    php7.1-iconv \
+    php7.1-imagick \
+    php7.1-json \
+    php7.1-intl \
+    php7.1-opcache \
+    php7.1-pdo \
+    php7.1-mysqli \
+    php7.1-xml  \
+    php7.1-tokenizer \
+    php7.1-zip \
+    php7.1-simplexml \
+    php7.1-bcmath \
+    php7.1-redis \
+    mysql-client \
+    git \
     apache2 \
     libapache2-mod-fastcgi \
-    php5-dev \
-    rsyslog --force-yes
+    libapache2-mod-php7.1
 
-# Install NodeJS and npm
-RUN curl -sL https://deb.nodesource.com/setup_4.x | bash -
-RUN apt-get install -y nodejs
 
 # Enable Apache Modules
 RUN a2enmod rewrite headers fastcgi actions
@@ -41,9 +60,6 @@ RUN a2enmod rewrite headers fastcgi actions
 RUN curl -sS https://getcomposer.org/installer | php \
     && mv composer.phar /usr/local/bin/composer
 
-# Install Gulp
-RUN npm install -g gulp
-RUN npm link gulp
 
 # Install Drush
 RUN php -r "readfile('http://files.drush.org/drush.phar');" > drush \
@@ -67,9 +83,9 @@ RUN chmod a+x /usr/local/bin/codecept
 RUN apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-COPY ./docker-utils/php5/php.ini /etc/php5/fpm/php.ini
-COPY ./docker-utils/php5/20-xdebug.ini /etc/php5/fpm/conf.d/20-xdebug.ini
-COPY ./docker-utils/php5cli/php.ini /etc/php5/cli/php.ini
+COPY ./docker-utils/php7.1/php.ini /etc/php7.1/fpm/php.ini
+COPY ./docker-utils/php7.1/20-xdebug.ini /etc/php7.1/fpm/conf.d/20-xdebug.ini
+COPY ./docker-utils/php7.1cli/php.ini /etc/php7.1/cli/php.ini
 COPY ./docker-utils/apache2/ports.conf /etc/apache2/
 COPY ./docker-utils/apache2/mods-enabled/*.conf /etc/apache2/mods-enabled/
 COPY ./docker-utils/supervisord/*.conf /etc/supervisor/conf.d/
@@ -87,6 +103,8 @@ ADD ./docker-utils/drush/* /root/.drush/
 # clean up tmp files (we don't need them for the image)
 RUN rm -rf /tmp/* /var/tmp/*
 
+# Code from Git
+RUN git clone https://github.com/Poornima-Sandireddy/Test.git /var/www/html/
 
 # Start our Services
 CMD ["/docker-utils/scripts/start-services.sh"]
